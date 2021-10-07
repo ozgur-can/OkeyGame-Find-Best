@@ -7,13 +7,15 @@ const Player = function () {
   this.black = [];
   this.red = [];
 
-  // give tiles to player
-  this.setTiles = function () {};
+  // oyuncuya taslari ata
+  this.setTiles = function (arr) {
+    this.tiles = arr;
+  };
 
-  // add tiles to color arrays
+  // taslari renklere gore ayir
   this.setColors = function () {};
 
-  // find best tile sets by color
+  // ayni renk taslar uzerinden perleri bul
   this.findTileSets = function (arr) {
     let sets = [];
 
@@ -50,8 +52,6 @@ const Player = function () {
       } else return state.getSet();
     }
   };
-
-  return this.findTileSets(this.yellow);
 };
 
 module.exports = Player;
