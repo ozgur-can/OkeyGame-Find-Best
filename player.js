@@ -2,7 +2,7 @@ const SearchState = require("./searchstate");
 
 const Player = function () {
   this.tiles = [];
-  this.yellow = [1, 2, 3, 8, 9, 11, 13];
+  this.yellow = [];
   this.blue = [];
   this.black = [];
   this.red = [];
@@ -10,10 +10,33 @@ const Player = function () {
   // oyuncuya taslari ata
   this.setTiles = function (arr) {
     this.tiles = arr;
+
+    // renkleri ata
+    this.setColors();
   };
 
   // taslari renklere gore ayir
-  this.setColors = function () {};
+  this.setColors = function () {
+    for (let i = 0; i < this.tiles.length; i++) {
+      let colorId = Math.floor(this.tiles[i] / 13);
+      let tile = (this.tiles[i] % 13) + 1;
+      if (colorId == 0) {
+        this.yellow.push(tile);
+      }
+
+      if (colorId == 1) {
+        this.blue.push(tile);
+      }
+
+      if (colorId == 2) {
+        this.black.push(tile);
+      }
+
+      if (colorId == 3) {
+        this.red.push(tile);
+      }
+    }
+  };
 
   // ayni renk taslar uzerinden perleri bul
   this.findTileSets = function (arr) {

@@ -11,21 +11,17 @@ const Okey = function () {
   // taslar olusturulur
   this.initTiles = function () {
     for (let i = 0; i <= this.tilesCount; i++) {
-      if (i < this.tilesCount) {
-        this.tiles.push(i, i);
-      } else {
-        this.tiles.push(i, i, i, i);
-      }
+      this.tiles.push(i, i);
     }
   };
 
   // okey tasi secilir
   this.pickOkey = function () {
-    // gostergesiz okey taslari dizisi
-    let tempArr = this.tiles.slice(0, this.tilesCount - 1);
-
     // sahte okey sec
-    this.fakeOkey = tempArr[Math.floor(Math.random() * tempArr.length)];
+    this.fakeOkey =
+      this.nonFakeTiles[
+        Math.floor(Math.random() * this.nonFakeTiles().length - 2)
+      ];
 
     // 13'ten buyukse ayni renk olmasi icin
     if (this.fakeOkey % 13 == 12) {
@@ -33,6 +29,11 @@ const Okey = function () {
     } else {
       this.okey = this.fakeOkey + 1;
     }
+  };
+
+  // sahte okey harici taslar
+  this.nonFakeTiles = function () {
+    return this.tiles.slice(0, this.tiles.length - 2);
   };
 
   // taslari dagit
@@ -46,7 +47,9 @@ const Okey = function () {
     this.selectWithLoop = function (count) {
       while (selected.length < count) {
         // rastgele sayi sec
-        let randomIndex = Math.floor(Math.random() * this.tiles.length);
+        let randomIndex = Math.floor(
+          Math.random() * this.nonFakeTiles().length
+        );
         let random = this.tiles[randomIndex];
 
         // tas henuz secilmediyse ekle
@@ -66,7 +69,7 @@ const Okey = function () {
         this.selectWithLoop(14);
       }
 
-      // oyunculara dagitilacak taslari sirala 
+      // oyunculara dagitilacak taslari sirala
       this.sortTiles(selected);
       // oyunculara taslari dagit
       this.players[playerIndex].setTiles(selected);
@@ -80,10 +83,17 @@ const Okey = function () {
     arr.sort((a, b) => a - b);
   };
 
+  // en iyi eli bul
+  this.findBest = function () {};
+
   this.test = function () {
     this.initTiles();
     this.pickOkey();
     this.distrubuteTiles();
+
+    for (let i = 0; i < this.players.length; i++) {
+      console.log(this.players[i].tiles, this.players[i].tiles.length);
+    }
   };
 };
 
