@@ -99,11 +99,6 @@ const Player = function () {
       for (let i = 0; i < arrList.length; i++) {
         for (let j = 0; j < arrList[i].length; j++) {
           for (let z = 0; z < arrList[i][j].length; z++) {
-            // let index = this.tiles.indexOf(arrList[i][j][z]);
-            // this.tiles.splice(index, 1);
-            // add to colorTiles TODO
-            // this.colorTiles.push(new ColorTile(i, z));
-
             let indexCt = this.colorTiles.findIndex(
               (item) => item.color == i && item.number == arrList[i][j][z]
             );
