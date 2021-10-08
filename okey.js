@@ -91,7 +91,20 @@ const Okey = function () {
     this.pickOkey();
     this.distrubuteTiles();
 
-    this.players[0].findTileSets();
+    for (let i = 0; i < this.playerCount; i++) {
+      console.log(`\n--PLAYER ${i}--\n`);
+      this.players[i].findTileSets();
+      console.log(`Sari ${this.players[i].yellow}`);
+      console.log(`Mavi ${this.players[i].blue}`);
+      console.log(`Siyah ${this.players[i].black}`);
+      console.log(`Kirmizi ${this.players[i].red}`);
+      let playerStat = this.players[i].calculate();
+
+      console.log(`\n2li sayisi -> ${playerStat.count2.length}`);
+      console.log(`Per sayisi -> ${playerStat.count3}`);
+      console.log(`Per olmayan tas sayisi -> ${playerStat.junk}`);
+      console.log("\n- - - - - - - - - - - - -");
+    }
   };
 };
 

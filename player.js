@@ -15,7 +15,6 @@ const Player = function () {
   this.colorList = [];
   this.junkTiles = [];
   this.diffColorSets = new Map();
-  this.playerStat = null;
   this.setCount = 0;
 
   // oyuncuya taslari ata
@@ -132,30 +131,30 @@ const Player = function () {
 
     // farkli renk ayni sayi taslarin icinde per ara
     this.findTileSetsByKey();
-
-    let res = this.calculate(this.colorList);
-
   };
 
-  this.calculate = function (arr) {
+  this.calculate = function () {
+    
     // 2li taslar
     let count2 = [];
-
     // 3 ve uzeri tasli perler
     let count3 = [];
-
     let avg = 0;
-
-    for (let i = 0; i < arr.length; i++) {
-      for (let j = 0; j < arr[i].length; j++) {
-        let value = arr[i][j];
-        if (value.length == 2) {
-          count2.push(value);
-        } else if (value.length > 2) {
-          count3.push(value);
+    
+    this.calculateArray = function (arr) {
+      for (let i = 0; i < arr.length; i++) {
+        for (let j = 0; j < arr[i].length; j++) {
+          let value = arr[i][j];
+          if (value.length == 2) {
+            count2.push(value);
+          } else if (value.length > 2) {
+            count3.push(value);
+          }
         }
       }
-    }
+    };
+
+    this.calculateArray(this.colorList);
 
     if (this.diffColorSets.size != 0)
       for (let i = 1; i <= 13; i++) {
@@ -182,7 +181,7 @@ const Player = function () {
     return {
       count2: count2,
       count3: avg,
-      junk: this.junkTiles.length
+      junk: this.junkTiles.length,
     };
   };
 
