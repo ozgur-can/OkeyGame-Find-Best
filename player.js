@@ -12,8 +12,10 @@ const Player = function () {
   this.blue = [];
   this.black = [];
   this.red = [];
+  this.colorList = [];
   this.junkTiles = [];
   this.diffColorSets = new Map();
+  this.playerStat = null;
   this.setCount = 0;
 
   // oyuncuya taslari ata
@@ -128,18 +130,68 @@ const Player = function () {
     let blackSets = this.findTileSetsByColor(this.black);
     let redSets = this.findTileSetsByColor(this.red);
 
-    // ayni renk perlerin taslari disindaki taslar birakilir
-    this.calculateRestTiles([yellowSets, blueSets, blackSets, redSets]);
+    this.colorList = [yellowSets, blueSets, blackSets, redSets];
 
+    // ayni renk perlerin taslari disindaki taslar birakilir
+    this.calculateRestTiles(this.colorList);
+
+    // farkli renk ayni sayi taslarin icinde per ara
     this.findTileSetsByKey();
 
-    console.log(this.setCount, this.junkTiles.length);
+    let res = this.calculate(this.colorList);
 
-    // return allSets;
   };
 
-  this.analyzeSets = function () {};
+  this.calculate = function (arr) {
+    // 2li taslar
+    let count2 = [];
 
+    // 3 ve uzeri tasli perler
+    let count3 = [];
+
+    let avg = 0;
+
+    for (let i = 0; i < arr.length; i++) {
+      for (let j = 0; j < arr[i].length; j++) {
+        let value = arr[i][j];
+        if (value.length == 2) {
+          count2.push(value);
+        } else if (value.length > 2) {
+          count3.push(value);
+        }
+      }
+    }
+
+    if (this.diffColorSets.size != 0)
+      for (let i = 1; i <= 13; i++) {
+        let value = this.diffColorSets.get(i);
+        if (value) {
+          if (value.length == 2) {
+            count2.push(value);
+          } else if (value.length > 2) {
+            count3.push(value);
+          }
+        }
+      }
+
+    // ortalama olarak oyuncu durumunu hesapla
+    for (let i = 0; i < count3.length; i++) {
+      let value = count3[i].length;
+      avg += value;
+    }
+
+    if (count3.length > 0) {
+      avg /= count3.length;
+    }
+
+    return {
+      count2: count2,
+      count3: avg,
+      junk: this.junkTiles.length
+    };
+  };
+
+  // her sayi üzerinden +1 ini arayarak ikili veya uclu set'ler bul
   this.sameColorSearch = function (arr, firstIndex, lastIndex, search, state) {
     if (lastIndex >= 1) {
       this.mid = firstIndex + Math.floor((lastIndex - 1) / 2);
