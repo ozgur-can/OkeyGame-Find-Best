@@ -16,6 +16,13 @@ const Player = function () {
   this.junkTiles = [];
   this.diffColorSets = new Map();
   this.setCount = 0;
+  this.stat = {
+    // 2li taslar
+    count2: [],
+    // 3 ve uzeri tasli perler
+    count3: [],
+    avg: 0,
+  };
 
   // oyuncuya taslari ata
   this.setTiles = function (arr) {
@@ -131,24 +138,20 @@ const Player = function () {
 
     // farkli renk ayni sayi taslarin icinde per ara
     this.findTileSetsByKey();
+
+    // oyuncuyu sahip oldugu taslara gore derecelendir
+    this.calculate();
   };
 
   this.calculate = function () {
-    
-    // 2li taslar
-    let count2 = [];
-    // 3 ve uzeri tasli perler
-    let count3 = [];
-    let avg = 0;
-    
     this.calculateArray = function (arr) {
       for (let i = 0; i < arr.length; i++) {
         for (let j = 0; j < arr[i].length; j++) {
           let value = arr[i][j];
           if (value.length == 2) {
-            count2.push(value);
+            this.stat.count2.push(value);
           } else if (value.length > 2) {
-            count3.push(value);
+            this.stat.count3.push(value);
           }
         }
       }
@@ -161,28 +164,23 @@ const Player = function () {
         let value = this.diffColorSets.get(i);
         if (value) {
           if (value.length == 2) {
-            count2.push(value);
+            this.stat.count2.push(value);
           } else if (value.length > 2) {
-            count3.push(value);
+            this.stat.count3.push(value);
           }
         }
       }
 
     // ortalama olarak oyuncu durumunu hesapla
-    for (let i = 0; i < count3.length; i++) {
-      let value = count3[i].length;
-      avg += value;
+    for (let i = 0; i < this.stat.count3.length; i++) {
+      let value = this.stat.count3[i].length;
+      this.stat.avg += value;
     }
 
-    if (count3.length > 0) {
-      avg /= count3.length;
+    if (this.stat.count3.length > 0) {
+      // ort hesapla
+      this.stat.avg /= this.stat.count3.length;
     }
-
-    return {
-      count2: count2,
-      count3: avg,
-      junk: this.junkTiles.length,
-    };
   };
 
   // her sayi üzerinden +1 ini arayarak ikili veya uclu set'ler bul

@@ -84,12 +84,30 @@ const Okey = function () {
   };
 
   // en iyi eli bul
-  this.findBest = function () {};
+  this.findBest = function (playerStats) {
 
-  this.test = function () {
+    // oyunculari sirala
+    playerStats.sort(function (a, b) {
+      // once 0'nci(ortalama per sayisi) sonra 1'nci(2li tas sayisi) bilgiye gore sirala
+
+      if (a[0] < b[0]) return 1;
+      if (a[0] > b[0]) return -1;
+
+      if (a[1] < b[1]) return 1;
+      if (a[1] > b[1]) return -1;
+    });
+
+    // 0 -> en iyi
+    // 2 -> oyuncu indisi
+    // sirayla [avg, count2.length, i] olarak girildi
+    return playerStats[0][2];
+  };
+
+  this.main = function () {
     this.initTiles();
     this.pickOkey();
     this.distrubuteTiles();
+    let playerStats = [];
 
     for (let i = 0; i < this.playerCount; i++) {
       console.log(`\n--PLAYER ${i}--\n`);
@@ -98,15 +116,20 @@ const Okey = function () {
       console.log(`Mavi ${this.players[i].blue}`);
       console.log(`Siyah ${this.players[i].black}`);
       console.log(`Kirmizi ${this.players[i].red}`);
-      let playerStat = this.players[i].calculate();
 
-      console.log(`\n2li sayisi -> ${playerStat.count2.length}`);
-      console.log(`Per sayisi -> ${playerStat.count3}`);
-      console.log(`Per olmayan tas sayisi -> ${playerStat.junk}`);
+      let stat = this.players[i].stat;
+      console.log(`\n2li sayisi -> ${stat.count2.length}`);
+      console.log(`Per sayisi (ortalama) -> ${stat.avg}`);
       console.log("\n- - - - - - - - - - - - -");
+      // 0 -> en iyi
+      // 2 -> oyuncu indisi
+      // sirayla [avg, count2.length, i] olarak girildi
+      playerStats.push([stat.avg, stat.count2.length, i]);
     }
+
+    console.log(`en iyi oyuncu => PLAYER ${this.findBest(playerStats)}`);
   };
 };
 
-const t = new Okey();
-t.test();
+const okey = new Okey();
+okey.main();
