@@ -127,7 +127,7 @@ const Okey = function () {
       playerStats.push([stat.avg, stat.count2.length, i]);
     }
 
-    console.log(`en iyi oyuncu => PLAYER ${this.findBest(playerStats)}`);
+    console.log(`en iyi oyuncu => PLAYER ${this.findBest(playerStats)}\n`);
   };
 };
 
