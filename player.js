@@ -1,11 +1,20 @@
 const SearchState = require("./searchstate");
 
+const ColorTile = function (color, number) {
+  this.color = color;
+  this.number = number;
+};
+
 const Player = function () {
   this.tiles = [];
+  this.colorTiles = [];
   this.yellow = [];
   this.blue = [];
   this.black = [];
   this.red = [];
+  this.junkTiles = [];
+  this.diffColorSets = new Map();
+  this.setCount = 0;
 
   // oyuncuya taslari ata
   this.setTiles = function (arr) {
@@ -13,6 +22,9 @@ const Player = function () {
 
     // renkleri ata
     this.setColors();
+
+    // taslari gercek tas degerleri olarak duzenle 51 -> 13
+    this.setTilesReal();
   };
 
   // taslari renklere gore ayir
@@ -38,25 +50,95 @@ const Player = function () {
     }
   };
 
-  // ayni renk taslar uzerinden perleri bul
-  this.findTileSets = function (arr) {
-    let sets = [];
-
-    while (arr.length > 0) {
-      let state = new SearchState();
-
-      let result = this.sameColorSearch(arr, 0, arr.length - 1, arr[0], state);
-
-      if (result != null) {
-        arr = arr.slice(result.count);
-        sets.push(result.tiles);
-      } else {
-        arr = arr.slice(1);
-      }
+  this.setTilesReal = function () {
+    for (let i = 0; i < this.tiles.length; i++) {
+      //TODO: check
+      let colorId = Math.floor(this.tiles[i] / 13);
+      this.tiles[i] = (this.tiles[i] % 13) + 1;
+      this.colorTiles.push(new ColorTile(colorId, this.tiles[i]));
     }
-
-    return sets;
   };
+
+  // perleri bul
+  this.findTileSets = function () {
+    // ayni renk perleri bul
+    this.findTileSetsByColor = function (arr) {
+      let sets = [];
+
+      while (arr.length > 0) {
+        let state = new SearchState();
+
+        let result = this.sameColorSearch(
+          arr,
+          0,
+          arr.length - 1,
+          arr[0],
+          state
+        );
+
+        if (result != null) {
+          arr = arr.slice(result.count);
+          sets.push(result.tiles);
+
+          if (result.tiles.length > 2) {
+            this.setCount++;
+          } else {
+            this.junkTiles.push(result.tiles);
+          }
+        } else {
+          arr = arr.slice(1);
+        }
+      }
+      return sets;
+    };
+
+    // ayni renk perler disindaki taslari bul
+    this.calculateRestTiles = function (arrList) {
+      for (let i = 0; i < arrList.length; i++) {
+        for (let j = 0; j < arrList[i].length; j++) {
+          for (let z = 0; z < arrList[i][j].length; z++) {
+            // let index = this.tiles.indexOf(arrList[i][j][z]);
+            // this.tiles.splice(index, 1);
+            // add to colorTiles TODO
+            // this.colorTiles.push(new ColorTile(i, z));
+
+            let indexCt = this.colorTiles.findIndex(
+              (item) => item.color == i && item.number == arrList[i][j][z]
+            );
+            if (indexCt != -1) {
+              this.colorTiles.splice(indexCt, 1);
+            }
+          }
+        }
+      }
+    };
+
+    // farkli renk perleri bul
+    this.findTileSetsByKey = function () {
+      // 1..13 seklinde perler tutuldu
+      let mappedRestTiles = this.mapRestTiles();
+
+      // tek kalan taslar atildi
+      this.diffColorSets = this.calcDiffColorSets(mappedRestTiles);
+    };
+
+    // ayni renk perler bulunur
+    let yellowSets = this.findTileSetsByColor(this.yellow);
+    let blueSets = this.findTileSetsByColor(this.blue);
+    let blackSets = this.findTileSetsByColor(this.black);
+    let redSets = this.findTileSetsByColor(this.red);
+
+    // ayni renk perlerin taslari disindaki taslar birakilir
+    this.calculateRestTiles([yellowSets, blueSets, blackSets, redSets]);
+
+    this.findTileSetsByKey();
+
+    console.log(this.setCount, this.junkTiles.length);
+
+    // return allSets;
+  };
+
+  this.analyzeSets = function () {};
 
   this.sameColorSearch = function (arr, firstIndex, lastIndex, search, state) {
     if (lastIndex >= 1) {
@@ -74,6 +156,60 @@ const Player = function () {
         return null;
       } else return state.getSet();
     }
+  };
+
+  // farkli renk taslari grupla
+  this.mapRestTiles = function () {
+    const tileMap = new Map();
+
+    // 1..13 seklinde tum geri kalan taslari grupla
+    for (let i = 0; i < this.colorTiles.length; i++) {
+      let tempArr = [this.colorTiles[i]];
+      for (let j = i + 1; j < this.colorTiles.length - 1; j++) {
+        if (this.colorTiles[i].number == this.colorTiles[j].number)
+          tempArr.push(this.colorTiles[j]);
+      }
+      if (!tileMap.get(this.colorTiles[i].number))
+        tileMap.set(this.colorTiles[i].number, tempArr);
+      tempArr = [];
+    }
+
+    // remove duplicates
+    for (let i = 1; i <= 13; i++) {
+      if (tileMap.get(i)) {
+        let unique = tileMap.get(i).filter(
+          (el, index, self) =>
+            self.findIndex((t) => {
+              return t.number === el.number && t.color === el.color;
+            }) === index
+        );
+
+        tileMap.set(i, unique);
+      }
+    }
+
+    return tileMap;
+  };
+
+  this.calcDiffColorSets = function (tileMap) {
+    for (let i = 1; i <= 13; i++) {
+      let current = tileMap.get(i);
+      if (current) {
+        if (current.length < 2) {
+          this.junkTiles.push(current);
+          tileMap.delete(i);
+        } else {
+          this.setCount++;
+        }
+      }
+    }
+
+    return tileMap;
+  };
+
+  // kucukten buyuge sirala
+  this.sortTiles = function (arr) {
+    arr.sort((a, b) => a - b);
   };
 };
 

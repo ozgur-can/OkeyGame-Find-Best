@@ -91,9 +91,7 @@ const Okey = function () {
     this.pickOkey();
     this.distrubuteTiles();
 
-    for (let i = 0; i < this.players.length; i++) {
-      console.log(this.players[i].tiles, this.players[i].tiles.length);
-    }
+    this.players[0].findTileSets();
   };
 };
 
